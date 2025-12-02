@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravitational Lensing Simulator (Beta) – Modern UI</title>
+  <style>
+    /* ===== Global Styles ===== */
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: #0d0f15;
+      color: #e7e7e7;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+    }
+
+    a {
+      color: #8ab4ff;
+      text-decoration: none;
+    }
+
+    /* ===== Layout ===== */
+    header {
+      padding: 3rem 2rem;
+      text-align: center;
+      background: linear-gradient(145deg, #11131b, #0b0d13);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      opacity: 0.8;
+      font-size: 1.05rem;
+    }
+
+    nav ul {
+      margin-top: 1.5rem;
+      list-style: none;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    nav a {
+      font-size: 0.95rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      transition: 0.2s;
+    }
+
+    nav a:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* Main sections */
+    main {
+      max-width: 1500px;
+      padding: 2.5rem;
+      margin: 0 auto;
+    }
+
+    section {
+      margin-bottom: 4rem;
+    }
+
+    /* ===== Simulator Layout ===== */
+    .simulator-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 380px;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.04);
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(8px);
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      margin-bottom: 0.3rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .panel-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.65;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: normal;
+    }
+
+    /* ===== Image boxes ===== */
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #000;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    /* ===== Controls ===== */
+    .control-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.87rem;
+      opacity: 0.85;
+    }
+
+    .control-value {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      transition: 0.2s;
+    }
+
+    button.primary {
+      background: #4d8bff;
+    }
+
+    button:hover {
+      filter: brightness(1.15);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button.live-mode-btn {
+      background: rgba(255,255,255,0.12);
+    }
+
+    button.live-mode-btn.active {
+      background: #4CAF50;
+    }
+
+    /* Status */
+    .status-display {
+      padding: 0.75rem;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+    }
+
+    .status-display.ready {
+      background: rgba(76, 175, 80, 0.12);
+      border-color: rgba(76, 175, 80, 0.35);
+      color: #8eff9c;
+    }
+
+    .status-display.computing {
+      background: rgba(255, 193, 7, 0.12);
+      border-color: rgba(255, 193, 7, 0.35);
+      color: #ffd95a;
+    }
+
+    .status-display.error {
+      background: rgba(244, 67, 54, 0.12);
+      border-color: rgba(244, 67, 54, 0.35);
+      color: #ff8a80;
+    }
+
+    /* Info panel */
+    .info-panel {
+      margin-top: 1rem;
+      background: rgba(255,255,255,0.06);
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* Footnotes section */
+    .footnotes {
+      margin-top: 3rem;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border-left: 3px solid rgba(138, 180, 255, 0.5);
+    }
+
+    .footnotes h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .footnotes ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .footnotes li {
+      font-size: 0.85rem;
+      opacity: 0.75;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Example image section */
+    .example-image-section {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .example-image-section h4 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .example-image-container {
+      margin: 1.5rem auto;
+      max-width: 800px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .example-image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .image-credit {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      margin-top: 0.75rem;
+      font-style: italic;
+    }
+
+    /* Documentation section */
+    .documentation-section {
+      margin-top: 4rem;
+      padding: 2.5rem;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .documentation-section h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(138, 180, 255, 0.3);
+      padding-bottom: 0.5rem;
+    }
+
+    .documentation-section h4 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: #8ab4ff;
+    }
+
+    .documentation-section p {
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      opacity: 0.85;
+    }
+
+    .documentation-section ul {
+      margin: 1rem 0;
+      padding-left: 2rem;
+    }
+
+    .documentation-section li {
+      line-height: 1.7;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .documentation-section code {
+      background: rgba(255,255,255,0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #8ab4ff;
+    }
+
+    .documentation-section a {
+      color: #8ab4ff;
+      text-decoration: underline;
+    }
+
+    .documentation-section a:hover {
+      color: #aac9ff;
+    }
+
+    /* Credits/Footer section */
+    .credits-section {
+      margin-top: 4rem;
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .credits-section p {
+      margin: 0.5rem 0;
+      opacity: 0.7;
+      font-size: 0.95rem;
+    }
+
+    .credits-section .creator-name {
+      font-weight: 600;
+      color: #8ab4ff;
+      font-size: 1.05rem;
+      opacity: 1;
+    }
+
+    .credits-links {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .credits-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #8ab4ff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background: rgba(138, 180, 255, 0.1);
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .credits-links a:hover {
+      background: rgba(138, 180, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .credits-links svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Floating creator badge - top left */
+    .floating-badge {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: rgba(17, 19, 27, 0.95);
+      border: 1px solid rgba(138, 180, 255, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .floating-badge:hover {
+      background: rgba(17, 19, 27, 1);
+      border-color: rgba(138, 180, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .floating-badge-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #e7e7e7;
+      white-space: nowrap;
+    }
+
+    .floating-badge-text .by {
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    .floating-badge-text .name {
+      color: #8ab4ff;
+      font-weight: 600;
+    }
+
+    .floating-badge-icons {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .floating-badge-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8ab4ff;
+      transition: all 0.2s;
+      opacity: 0.8;
+    }
+
+    .floating-badge-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .floating-badge-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Responsive - hide on very small screens */
+    @media (max-width: 640px) {
+      .floating-badge {
+        padding: 0.5rem 0.75rem;
+      }
+      
+      .floating-badge-text {
+        font-size: 0.75rem;
+      }
+      
+      .floating-badge-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .simulator-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating creator badge -->
+<div class="floating-badge">
+  <span class="floating-badge-text">
+    <span class="by">by</span> <span class="name">Kiana Kade</span>
+  </span>
+  <div class="floating-badge-icons">
+    <a href="https://kianakade.github.io" target="_blank" rel="noopener noreferrer" class="floating-badge-icon" title="Website">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+    </a>
+    <a href="https://github.com/kianakade" target="_blank" rel="noopener noreferrer" class="floating-badge-icon" title="GitHub">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<header>
+  <h1>Gravitational Lensing Simulator <span style="font-size: 0.6em; opacity: 0.7;">(beta version)</span></h1>
+  <p>Interactive forward modelling via ray tracing using PyAutoLens – explore how gravity bends light!</p>
+  <nav>
+    <ul>
+      <li><a href="rgb-lens.html">How would you look gravitationally lensed?</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section id="simulator">
+    <div class="simulator-container">
+      <div class="panel">
+        <h3>Source Plane</h3>
+        <div class="panel-subtitle">Shows background object</div>
+        <div class="image-wrapper">
+          <img id="sourceImage" alt="Source plane" />
+          <div id="sourceLoading" class="loading-overlay">Loading source image...</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Image Plane</h3>
+        <div class="panel-subtitle">Lensed image (what we see in the sky)</div>
+        <div class="image-wrapper">
+          <img id="lensedImage" alt="Lensed output" />
+          <div id="lensedLoading" class="loading-overlay">Waiting for input...</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Lens Parameters</h3>
+
+        <div class="control-group">
+          <div class="control-label"><span>Center X (arcsec)</span> <span id="centerXValue">0.00</span></div>
+          <input type="range" id="centerX" min="-0.6" max="0.6" step="0.01" value="0">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label"><span>Center Y (arcsec)</span> <span id="centerYValue">0.00</span></div>
+          <input type="range" id="centerY" min="-0.6" max="0.6" step="0.01" value="0">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label"><span>Einstein Radius</span> <span id="einsteinRadiusValue">1.00</span></div>
+          <input type="range" id="einsteinRadius" min="0.5" max="1.5" step="0.01" value="1.0">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label"><span>Axis Ratio</span> <span id="axisRatioValue">0.90</span></div>
+          <input type="range" id="axisRatio" min="0.3" max="1.9" step="0.01" value="0.9">
+        </div>
+
+        <div class="control-group">
+          <div class="control-label"><span>Position Angle (deg)</span> <span id="angleValue">45</span></div>
+          <input type="range" id="angle" min="0" max="179" step="1" value="45">
+        </div>
+
+        <div class="button-group">
+          <button class="primary" id="computeBtn">Compute Lensing</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="button-group">
+          <button id="liveModeBtn" class="live-mode-btn">Enable Live Mode</button>
+        </div>
+
+        <div id="status" class="status-display ready">Ready to compute</div>
+      </div>
+    </div>
+
+
+    <div class="example-image-section">
+      <h4>Real Gravitational Lensing Example</h4>
+      <div class="example-image-container">
+        <img src="Explainer.jpeg" 
+             alt="Real gravitational lensing observation showing a cosmic lens revealing a faint radio galaxy"
+             loading="lazy"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'text-align:center; opacity:0.6; padding:2rem;\'>Image not found. Please place Explainer.jpeg in the static folder.</p>'">
+      </div>
+      <p class="image-credit">Image via R. Hurt (IPAC/Caltech) / The GraL Collaboration / ESA</p>
+    </div>
+  </section>
+
+  <section id="documentation" class="documentation-section">
+    <h3>Documentation</h3>
+    
+    <h4>About This Simulator</h4>
+    <p>
+      This web application is a wrapper around <strong>PyAutoLens</strong>, a powerful Python package for strong gravitational lens modeling (links below). 
+      It uses ray tracing to forward lens model a simple, circular Gaussian into the image plane. Specifically, it:
+    </p>
+    <ul>
+      <li>Implements a single isothermal elliptical mass profile as the lens</li>
+      <li>Uses a simple Gaussian source as the background object</li>
+      <li>Performs ray tracing from the image plane back to the source plane</li>
+      <li>Visualizes how alignment, mass, and ellipticity affect Einstein ring formation</li>
+    </ul>
+
+    <h4>Limitations</h4>
+    <p>
+      This simulator is designed for only educational purposes, and because I thought it was fun. If you need to model real gravitational lens observations, please use the full PyAutoLens package directly.
+    </p>
+
+    <h4>Citation</h4>
+    <p>
+      If you use PyAutoLens or insights from this simulator in your research, please cite the appropriate papers. 
+      See the <a href="https://github.com/Jammy2211/PyAutoLens#citations" target="_blank">PyAutoLens GitHub</a> for citation information.
+    </p>
+  </section>
+
+  <div class="credits-section">
+    <p class="creator-name">Created by Kiana Kade</p>
+    <div class="credits-links">
+      <a href="https://kianakade.github.io" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+        Website
+      </a>
+      <a href="https://github.com/kianakade" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Configuration
+  const API_BASE_URL = 'http://localhost:5002';
+
+  // DOM Elements
+  const sourceImage = document.getElementById('sourceImage');
+  const lensedImage = document.getElementById('lensedImage');
+  const sourceLoading = document.getElementById('sourceLoading');
+  const lensedLoading = document.getElementById('lensedLoading');
+  const statusDisplay = document.getElementById('status');
+  const computeBtn = document.getElementById('computeBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const liveModeBtn = document.getElementById('liveModeBtn');
+
+  // Slider controls
+  const centerXSlider = document.getElementById('centerX');
+  const centerYSlider = document.getElementById('centerY');
+  const einsteinRadiusSlider = document.getElementById('einsteinRadius');
+  const axisRatioSlider = document.getElementById('axisRatio');
+  const angleSlider = document.getElementById('angle');
+
+  // Value displays
+  const centerXValue = document.getElementById('centerXValue');
+  const centerYValue = document.getElementById('centerYValue');
+  const einsteinRadiusValue = document.getElementById('einsteinRadiusValue');
+  const axisRatioValue = document.getElementById('axisRatioValue');
+  const angleValue = document.getElementById('angleValue');
+
+  // State
+  let isComputing = false;
+  let liveMode = false;
+  let debounceTimer = null;
+  let lastComputedParams = null;
+
+  // Initialize
+  async function init() {
+    // Load source image
+    await loadSourceImage();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Load cache stats
+    await updateCacheStats();
+  }
+
+  // Generate cache key from parameters
+  function getParamKey(params) {
+    return `${params.center_x.toFixed(2)}_${params.center_y.toFixed(2)}_${params.einstein_radius.toFixed(2)}_${params.axis_ratio.toFixed(2)}_${params.angle}`;
+  }
+
+  // Get current parameters
+  function getCurrentParams() {
+    return {
+      center_x: parseFloat(centerXSlider.value),
+      center_y: parseFloat(centerYSlider.value),
+      einstein_radius: parseFloat(einsteinRadiusSlider.value),
+      axis_ratio: parseFloat(axisRatioSlider.value),
+      angle: parseFloat(angleSlider.value)
+    };
+  }
+
+  // Load source image
+  async function loadSourceImage() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/source-image`);
+      if (!response.ok) throw new Error('Failed to load source image');
+      
+      const data = await response.json();
+      sourceImage.src = data.image;
+      sourceImage.onload = () => {
+        sourceLoading.style.display = 'none';
+      };
+    } catch (error) {
+      console.error('Error loading source image:', error);
+      sourceLoading.textContent = 'Failed to load source image';
+      updateStatus('error', 'Failed to connect to backend');
+    }
+  }
+
+  // Setup event listeners
+  function setupEventListeners() {
+    // Update value displays when sliders change
+    centerXSlider.addEventListener('input', (e) => {
+      centerXValue.textContent = parseFloat(e.target.value).toFixed(2);
+      if (liveMode) debouncedCompute();
+    });
+    
+    centerYSlider.addEventListener('input', (e) => {
+      centerYValue.textContent = parseFloat(e.target.value).toFixed(2);
+      if (liveMode) debouncedCompute();
+    });
+    
+    einsteinRadiusSlider.addEventListener('input', (e) => {
+      einsteinRadiusValue.textContent = parseFloat(e.target.value).toFixed(2);
+      if (liveMode) debouncedCompute();
+    });
+    
+    axisRatioSlider.addEventListener('input', (e) => {
+      axisRatioValue.textContent = parseFloat(e.target.value).toFixed(2);
+      if (liveMode) debouncedCompute();
+    });
+    
+    angleSlider.addEventListener('input', (e) => {
+      angleValue.textContent = parseInt(e.target.value);
+      if (liveMode) debouncedCompute();
+    });
+
+    // Compute button
+    computeBtn.addEventListener('click', computeLensing);
+
+    // Reset button
+    resetBtn.addEventListener('click', resetParameters);
+
+    // Live mode toggle
+    liveModeBtn.addEventListener('click', toggleLiveMode);
+  }
+
+  // Toggle live mode
+  function toggleLiveMode() {
+    liveMode = !liveMode;
+    
+    if (liveMode) {
+      liveModeBtn.textContent = 'Disable Live Mode';
+      liveModeBtn.classList.add('active');
+      updateStatus('ready', 'Live mode enabled - drag sliders to update');
+    } else {
+      liveModeBtn.textContent = 'Enable Live Mode';
+      liveModeBtn.classList.remove('active');
+      updateStatus('ready', 'Live mode disabled');
+      setTimeout(() => {
+        updateStatus('ready', 'Ready to compute');
+      }, 1500);
+    }
+  }
+
+  // Debounced compute for live mode
+  function debouncedCompute() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      computeLensing();
+    }, 300); // 300ms delay
+  }
+
+  // Update cache statistics
+  async function updateCacheStats() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/health`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Cache: ${data.cache.count} images, ${data.cache.size_mb.toFixed(2)} MB`);
+      }
+    } catch (error) {
+      console.error('Error fetching cache stats:', error);
+    }
+  }
+
+  // Compute lensing
+  async function computeLensing() {
+    if (isComputing) return;
+
+    const params = getCurrentParams();
+
+    isComputing = true;
+    computeBtn.disabled = true;
+    if (!liveMode) {
+      updateStatus('computing', 'Computing lensed image...');
+      lensedLoading.style.display = 'flex';
+      lensedLoading.textContent = 'Computing...';
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/lens`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params)
+      });
+
+      if (!response.ok) throw new Error('Failed to compute lensing');
+
+      const data = await response.json();
+      
+      // Update lensed image
+      lensedImage.src = data.image;
+      lensedImage.onload = () => {
+        lensedLoading.style.display = 'none';
+        if (!liveMode) {
+          const cacheMsg = data.from_cache ? ' (from cache)' : '';
+          updateStatus('ready', 'Computation complete!' + cacheMsg);
+          setTimeout(() => {
+            updateStatus('ready', 'Ready to compute');
+          }, 2000);
+        }
+      };
+
+      // Update source image with caustics if available
+      if (data.source_with_caustic) {
+        sourceImage.src = data.source_with_caustic;
+      }
+
+      lastComputedParams = params;
+
+    } catch (error) {
+      console.error('Error computing lensing:', error);
+      lensedLoading.textContent = 'Computation failed';
+      updateStatus('error', 'Failed to compute lensing: ' + error.message);
+    } finally {
+      isComputing = false;
+      computeBtn.disabled = false;
+    }
+  }
+
+  // Reset parameters to default
+  function resetParameters() {
+    centerXSlider.value = 0;
+    centerYSlider.value = 0;
+    einsteinRadiusSlider.value = 1.0;
+    axisRatioSlider.value = 0.9;
+    angleSlider.value = 45;
+
+    centerXValue.textContent = '0.00';
+    centerYValue.textContent = '0.00';
+    einsteinRadiusValue.textContent = '1.00';
+    axisRatioValue.textContent = '0.90';
+    angleValue.textContent = '45';
+
+    updateStatus('ready', 'Parameters reset');
+    setTimeout(() => {
+      updateStatus('ready', 'Ready to compute');
+    }, 1500);
+  }
+
+  // Update status display
+  function updateStatus(type, message) {
+    statusDisplay.className = `status-display ${type}`;
+    statusDisplay.textContent = message;
+  }
+
+  // Start the app
+  init();
+</script>
+
+</body>
+</html>

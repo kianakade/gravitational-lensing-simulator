@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How would you look gravitationally lensed?</title>
+  <style>
+    /* ===== Global Styles ===== */
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: #0d0f15;
+      color: #e7e7e7;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+    }
+
+    a {
+      color: #8ab4ff;
+      text-decoration: none;
+    }
+
+    /* ===== Layout ===== */
+    header {
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(145deg, #11131b, #0b0d13);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      opacity: 0.8;
+      font-size: 1rem;
+    }
+
+    nav {
+      margin-top: 1rem;
+    }
+
+    nav a {
+      color: #8ab4ff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: 0.2s;
+      display: inline-block;
+    }
+
+    nav a:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    main {
+      max-width: 900px;
+      padding: 2.5rem;
+      margin: 0 auto;
+    }
+
+    /* ===== Upload Section ===== */
+    .upload-container {
+      background: rgba(255,255,255,0.04);
+      padding: 2rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .upload-area {
+      border: 2px dashed rgba(138, 180, 255, 0.3);
+      border-radius: 10px;
+      padding: 3rem 2rem;
+      background: rgba(138, 180, 255, 0.05);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: rgba(138, 180, 255, 0.6);
+      background: rgba(138, 180, 255, 0.1);
+    }
+
+    .upload-area.dragover {
+      border-color: #8ab4ff;
+      background: rgba(138, 180, 255, 0.15);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    .upload-text {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .button-primary {
+      background: #4d8bff;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 1rem;
+    }
+
+    .button-primary:hover {
+      background: #6a9fff;
+    }
+
+    .button-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ===== Results Section ===== */
+    .results-container {
+      background: rgba(255,255,255,0.04);
+      padding: 2rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      display: none;
+    }
+
+    .results-container.show {
+      display: block;
+    }
+
+    .result-image {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    /* ===== Status Messages ===== */
+    .status-message {
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      text-align: center;
+      display: none;
+    }
+
+    .status-message.show {
+      display: block;
+    }
+
+    .status-message.processing {
+      background: rgba(255, 193, 7, 0.12);
+      border: 1px solid rgba(255, 193, 7, 0.35);
+      color: #ffd95a;
+    }
+
+    .status-message.success {
+      background: rgba(76, 175, 80, 0.12);
+      border: 1px solid rgba(76, 175, 80, 0.35);
+      color: #8eff9c;
+    }
+
+    .status-message.error {
+      background: rgba(244, 67, 54, 0.12);
+      border: 1px solid rgba(244, 67, 54, 0.35);
+      color: #ff8a80;
+    }
+
+    /* ===== Loading Spinner ===== */
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid #8ab4ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+      display: none;
+    }
+
+    .spinner.show {
+      display: block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ===== Info Section ===== */
+    .info-box {
+      background: rgba(138, 180, 255, 0.08);
+      border-left: 3px solid #8ab4ff;
+      padding: 1.5rem;
+      border-radius: 6px;
+      margin: 2rem 0;
+    }
+
+    .info-box h3 {
+      color: #8ab4ff;
+      margin-top: 0;
+    }
+
+    .info-box ul {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .info-box li {
+      margin: 0.5rem 0;
+      opacity: 0.85;
+    }
+
+    /* ===== Preview Image ===== */
+    .preview-container {
+      margin: 1rem 0;
+      display: none;
+    }
+
+    .preview-container.show {
+      display: block;
+    }
+
+    .preview-image {
+      max-width: 300px;
+      max-height: 300px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin: 1rem auto;
+      display: block;
+    }
+
+    /* ===== Example Section ===== */
+    .example-section {
+      background: rgba(138, 180, 255, 0.05);
+      border: 1px solid rgba(138, 180, 255, 0.2);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .example-images-wrapper {
+      flex: 0 0 auto;
+      text-align: center;
+    }
+
+    .example-images-wrapper h2 {
+      color: #8ab4ff;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .example-images {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .example-image-container {
+      flex: 0 0 auto;
+    }
+
+    .example-image-container img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .example-image-container .label {
+      margin-top: 0.3rem;
+      font-size: 0.75rem;
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    .arrow {
+      font-size: 1.2rem;
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+
+    .tips-wrapper {
+      flex: 1;
+      min-width: 250px;
+      max-width: 350px;
+      text-align: left;
+    }
+
+    .tips-wrapper h3 {
+      color: #8ab4ff;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .tips-wrapper ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: 0.8rem;
+      opacity: 0.75;
+      line-height: 1.5;
+    }
+
+    .tips-wrapper li {
+      margin-bottom: 0.35rem;
+    }
+
+    /* Floating creator badge - top left */
+    .floating-badge {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: rgba(17, 19, 27, 0.95);
+      border: 1px solid rgba(138, 180, 255, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .floating-badge:hover {
+      background: rgba(17, 19, 27, 1);
+      border-color: rgba(138, 180, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .floating-badge-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #e7e7e7;
+      white-space: nowrap;
+    }
+
+    .floating-badge-text .by {
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    .floating-badge-text .name {
+      color: #8ab4ff;
+      font-weight: 600;
+    }
+
+    .floating-badge-icons {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .floating-badge-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8ab4ff;
+      transition: all 0.2s;
+      opacity: 0.8;
+    }
+
+    .floating-badge-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .floating-badge-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Responsive - hide on very small screens */
+    @media (max-width: 640px) {
+      .floating-badge {
+        padding: 0.5rem 0.75rem;
+      }
+      
+      .floating-badge-text {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .example-images {
+        flex-direction: column;
+      }
+      
+      .arrow {
+        transform: rotate(90deg);
+      }
+      
+      .example-image-container img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating creator badge -->
+<div class="floating-badge">
+  <span class="floating-badge-text">
+    <span class="by">by</span> <span class="name">Kiana Kade</span>
+  </span>
+  <div class="floating-badge-icons">
+    <a href="https://kianakade.github.io" target="_blank" rel="noopener noreferrer" class="floating-badge-icon" title="Website">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+    </a>
+    <a href="https://github.com/kianakade" target="_blank" rel="noopener noreferrer" class="floating-badge-icon" title="GitHub">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<header>
+  <h1>🌌 Lens Your Photos!</h1>
+  <p>Upload an image of yourself (or a cat or a potato!) and see how it would look if it were gravitationally lensed!</p>
+  <nav>
+    <a href="/">← Back to Simulator</a>
+  </nav>
+</header>
+
+<main>
+  <div class="example-section">
+    <div class="example-images-wrapper">
+      <h2>Example:</h2>
+      <div class="example-images">
+        <div class="example-image-container">
+          <img src="Motiv.png" 
+               alt="Original image example"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23333%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2212%22%3EOriginal%3C/text%3E%3C/svg%3E'">
+          <div class="label">Original</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="example-image-container">
+          <img src="FWMotiv.png" 
+               alt="Lensed image example"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23333%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2212%22%3ELensed%3C/text%3E%3C/svg%3E'">
+          <div class="label">Lensed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips-wrapper">
+      <h3>Tips:</h3>
+      <ul>
+        <li>Cut out the interesting part of your image if you can</li>
+        <li>Centered subjects create Einstein rings</li>
+        <li>Processing time is ~10-30 seconds</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="upload-container">
+    <h2>Upload Your Image</h2>
+    
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Click to select an image or drag and drop</div>
+      <div class="upload-hint">Supports: PNG, JPG, JPEG, GIF (max 16MB)</div>
+    </div>
+    
+    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif">
+    
+    <div class="preview-container" id="previewContainer">
+      <p>Selected image:</p>
+      <img id="previewImage" class="preview-image" alt="Preview">
+    </div>
+    
+    <button class="button-primary" id="lensButton" disabled>
+      Lens This Image!
+    </button>
+    
+    <div class="status-message" id="statusMessage"></div>
+    <div class="spinner" id="spinner"></div>
+  </div>
+
+  <div class="results-container" id="resultsContainer">
+    <h2>✨ Your Lensed Image</h2>
+    <img id="resultImage" class="result-image" alt="Lensed result">
+  </div>
+
+  <div class="info-box">
+    <h3>How It Works</h3>
+    <ul>
+      <li>Image Resizing: Your image is automatically resized to 150×150 pixels</li>
+      <li>Fixed Lens: Uses a preset lens configuration (centered lens, Einstein radius = 1.5, ellipticity = 0.5)</li>
+      <li>Ray Tracing: Each pixel is ray-traced through the gravitational lens using PyAutoLens</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+  const API_BASE_URL = 'http://localhost:5002';
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('fileInput');
+  const lensButton = document.getElementById('lensButton');
+  const statusMessage = document.getElementById('statusMessage');
+  const spinner = document.getElementById('spinner');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const resultImage = document.getElementById('resultImage');
+  const previewContainer = document.getElementById('previewContainer');
+  const previewImage = document.getElementById('previewImage');
+
+  let selectedFile = null;
+
+  // Click to upload
+  uploadArea.addEventListener('click', () => fileInput.click());
+
+  // Drag and drop
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  });
+
+  // File selection
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFileSelect(e.target.files[0]);
+    }
+  });
+
+  function handleFileSelect(file) {
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      showStatus('error', 'Invalid file type. Please upload PNG, JPG, or GIF.');
+      return;
+    }
+
+    // Validate file size (16MB)
+    if (file.size > 16 * 1024 * 1024) {
+      showStatus('error', 'File too large. Maximum size is 16MB.');
+      return;
+    }
+
+    selectedFile = file;
+    lensButton.disabled = false;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.src = e.target.result;
+      previewContainer.classList.add('show');
+    };
+    reader.readAsDataURL(file);
+
+    showStatus('success', `Selected: ${file.name}`);
+  }
+
+  // Lens the image
+  lensButton.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    lensButton.disabled = true;
+    resultsContainer.classList.remove('show');
+    showStatus('processing', 'Processing your image through gravitational lensing... This may take 10-30 seconds.');
+    spinner.classList.add('show');
+
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/rgb-lens`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Processing failed');
+      }
+
+      const data = await response.json();
+
+      // Show results
+      resultImage.src = data.image;
+      resultsContainer.classList.add('show');
+      showStatus('success', '✨ Lensing complete! See your result below.');
+
+      // Scroll to results
+      resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (error) {
+      console.error('Error:', error);
+      showStatus('error', `Error: ${error.message}`);
+    } finally {
+      spinner.classList.remove('show');
+      lensButton.disabled = false;
+    }
+  });
+
+  function showStatus(type, message) {
+    statusMessage.className = `status-message ${type} show`;
+    statusMessage.textContent = message;
+
+    if (type === 'success' || type === 'error') {
+      setTimeout(() => {
+        if (type === 'success' && resultsContainer.classList.contains('show')) {
+          statusMessage.classList.remove('show');
+        }
+      }, 5000);
+    }
+  }
+</script>
+
+</body>
+</html>
