@@ -8,8 +8,8 @@ ENV/
 *.egg-info/
 
 # Cache and temporary files
-cache/
-*.pkl
+#cache/
+#*.pkl
 uploads/
 
 # IDE and OS

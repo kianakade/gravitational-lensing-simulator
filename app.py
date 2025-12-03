@@ -65,6 +65,36 @@ SOURCE_EXTENT = None
 # Create cache directory
 os.makedirs(CACHE_DIR, exist_ok=True)
 
+def snap_to_slider_steps(params):
+    """
+    Snap parameters to exact slider step values for cache hits
+    
+    Slider steps (10 discrete positions each):
+    - center_x: -0.6 to 0.6, step ~0.133
+    - center_y: -0.6 to 0.6, step ~0.133
+    - einstein_radius: 0.5 to 1.5, step ~0.111
+    - axis_ratio: 0.3 to 1.9, step ~0.178
+    - angle: 0 to 180, step 20
+    """
+    
+    # Define the 10 discrete values for each parameter
+    center_x_steps = np.linspace(-0.6, 0.6, 10)
+    center_y_steps = np.linspace(-0.6, 0.6, 10)
+    einstein_radius_steps = np.linspace(0.5, 1.5, 10)
+    axis_ratio_steps = np.linspace(0.3, 1.9, 10)
+    angle_steps = np.linspace(0, 180, 10)
+    
+    # Snap each parameter to nearest step
+    snapped = {
+        'center_x': center_x_steps[np.argmin(np.abs(center_x_steps - params['center_x']))],
+        'center_y': center_y_steps[np.argmin(np.abs(center_y_steps - params['center_y']))],
+        'einstein_radius': einstein_radius_steps[np.argmin(np.abs(einstein_radius_steps - params['einstein_radius']))],
+        'axis_ratio': axis_ratio_steps[np.argmin(np.abs(axis_ratio_steps - params['axis_ratio']))],
+        'angle': angle_steps[np.argmin(np.abs(angle_steps - params['angle']))]
+    }
+    
+    return snapped
+
 def get_cache_key(params):
     """Generate a cache key from parameters"""
     key_str = f"{params['center_x']:.2f}_{params['center_y']:.2f}_{params['einstein_radius']:.2f}_{params['axis_ratio']:.2f}_{params['angle']}"
@@ -567,24 +597,27 @@ def compute_lens():
             if param not in params:
                 return jsonify({'error': f'Missing parameter: {param}'}), 400
         
-        # Check cache first
-        cache_key = get_cache_key(params)
+        # Snap parameters to exact slider steps for guaranteed cache hits
+        snapped_params = snap_to_slider_steps(params)
+        
+        # Check cache first (using snapped parameters)
+        cache_key = get_cache_key(snapped_params)
         cached_result = load_from_cache(cache_key)
         
         if cached_result:
-            print(f"Cache hit for params: {params}")
+            print(f"Cache hit for snapped params: {snapped_params}")
             return jsonify({
                 'image': cached_result['image'],
                 'source_with_caustic': cached_result['source_with_caustic'],
-                'params': params,
+                'params': snapped_params,
                 'success': True,
                 'from_cache': True
             })
         
-        print(f"Computing lensing with params: {params}")
+        print(f"Computing lensing with snapped params: {snapped_params}")
         
-        # Compute lensed image
-        lensing_result = compute_lensed_image(params)
+        # Compute lensed image (using snapped parameters)
+        lensing_result = compute_lensed_image(snapped_params)
         
         # Convert lensed image to base64 with composite view
         img_base64 = create_composite_image(lensing_result)
@@ -602,7 +635,7 @@ def compute_lens():
         result = {
             'image': img_base64,
             'source_with_caustic': source_img_base64,
-            'params': params,
+            'params': snapped_params,  # Return snapped params
             'success': True,
             'from_cache': False
         }
