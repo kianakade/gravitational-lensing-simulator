@@ -498,6 +498,22 @@ def create_comparison_image(original, lensed):
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     return f"data:image/png;base64,{img_base64}"
 
+# ============================================================================
+# Initialize Source Image (IMPORTANT: Must happen before routes for Gunicorn!)
+# ============================================================================
+print("Initializing gravitational lensing simulator...")
+try:
+    create_source_image()
+    print("Source image created successfully!")
+except Exception as e:
+    print(f"ERROR creating source image: {e}")
+    import traceback
+    traceback.print_exc()
+
+# ============================================================================
+# API Routes
+# ============================================================================
+
 @app.route('/')
 def index():
     """Serve the main HTML page"""
