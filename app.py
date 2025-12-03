@@ -52,9 +52,10 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 cmap_custom = 'Greys'
 
 # Global configuration
-SRCIMG_SIZE = 125
-PIXEL_SCALES = 0.01
-IMGPLANE_IMSIZE = 300
+# Optimized for Railway free tier (512 MB RAM limit)
+SRCIMG_SIZE = 100          # Reduced from 125
+PIXEL_SCALES = 0.015       # Increased from 0.01 (fewer pixels)
+IMGPLANE_IMSIZE = 200      # Reduced from 300 (big memory saver!)
 CACHE_DIR = 'cache'
 
 # Global source plane image
@@ -168,7 +169,7 @@ def compute_lensed_image(lens_params):
     grid = al.Grid2D.uniform(
         shape_native=(IMGPLANE_IMSIZE, IMGPLANE_IMSIZE),
         pixel_scales=PIXEL_SCALES,
-        over_sample_size=8,
+        over_sample_size=4,  # Reduced from 8 for Railway memory limits
     )
     
     # Get critical curves and caustics
@@ -423,10 +424,11 @@ def forward_model_rgb_channel(source_channel_array, pixel_scales=0.01):
     tracer = al.Tracer(galaxies=[lens, al.Galaxy(redshift=7.0)])
     
     # Create grid for image plane (larger than source for lensing effects)
+    # Reduced for Railway memory limits
     grid = al.Grid2D.uniform(
-        shape_native=(350, 350),
+        shape_native=(200, 200),  # Reduced from 350 for memory
         pixel_scales=pixel_scales,
-        over_sample_size=8,
+        over_sample_size=4,  # Reduced from 8 for memory
     )
     
     # Perform ray tracing
@@ -497,22 +499,6 @@ def create_comparison_image(original, lensed):
     
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     return f"data:image/png;base64,{img_base64}"
-
-# ============================================================================
-# Initialize Source Image (IMPORTANT: Must happen before routes for Gunicorn!)
-# ============================================================================
-print("Initializing gravitational lensing simulator...")
-try:
-    create_source_image()
-    print("Source image created successfully!")
-except Exception as e:
-    print(f"ERROR creating source image: {e}")
-    import traceback
-    traceback.print_exc()
-
-# ============================================================================
-# API Routes
-# ============================================================================
 
 @app.route('/')
 def index():
