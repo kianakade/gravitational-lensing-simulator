@@ -3,7 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gravitational Lensing Simulator (Beta) – Modern UI</title>
+  
+  <!-- Title and Description -->
+  <title>Interactive Gravitational Lensing Simulator</title>
+  <meta name="description" content="Free interactive gravitational lensing simulator powered by PyAutoLens. Explore gravitational lens effects in real-time. Educational tool for astrophysics and cosmology." />
+  
+  <!-- Keywords for SEO -->
+  <meta name="keywords" content="gravitational lensing simulator, Einstein ring simulator, strong lensing, gravitational lens, PyAutoLens, astrophysics simulator, cosmology tools, interactive lensing, lens modeling, Einstein radius, caustics, ray tracing, isothermal elliptical mass profile, gravitational lensing calculator, astronomy tools, physics simulator" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Interactive Gravitational Lensing Simulator" />
+  <meta property="og:description" content="Free interactive gravitational lensing simulator powered by PyAutoLens. Explore gravitational lens effects in real-time. Educational tool for astrophysics and cosmology" />
+  <meta property="og:site_name" content="Gravitational Lensing Simulator" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gravitational Lensing Simulator" />
+  <meta name="twitter:description" content="Free interactive gravitational lensing simulator powered by PyAutoLens. Explore gravitational lens effects in real-time. Educational tool for astrophysics and cosmology" />
+  
+  <!-- Author -->
+  <meta name="author" content="Kiana Kade" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='grad1' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' style='stop-color:%23ffffff;stop-opacity:0' /%3E%3Cstop offset='60%25' style='stop-color:%234d8bff;stop-opacity:0.8' /%3E%3Cstop offset='100%25' style='stop-color:%238ab4ff;stop-opacity:1' /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='url(%23grad1)' stroke-width='8' opacity='0.9'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%234d8bff' stroke-width='4' opacity='0.7'/%3E%3Ccircle cx='50' cy='50' r='15' fill='none' stroke='%238ab4ff' stroke-width='3' opacity='0.5'/%3E%3Ccircle cx='50' cy='30' r='4' fill='%23ffffff' opacity='0.9'/%3E%3C/svg%3E" />
+  
+  <!-- Structured Data for Search Engines -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Gravitational Lensing Simulator",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Interactive gravitational lensing simulator powered by PyAutoLens for exploring Einstein rings and strong lensing phenomena",
+    "author": {
+      "@type": "Person",
+      "name": "Kiana Kade",
+      "url": "https://kianakade.github.io"
+    },
+    "keywords": "gravitational lensing, Einstein ring, strong lensing, astrophysics, PyAutoLens"
+  }
+  </script>
+  
   <style>
     /* ===== Global Styles ===== */
     body {
@@ -71,6 +118,14 @@
 
     section {
       margin-bottom: 4rem;
+    }
+
+    section > h2 {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #8ab4ff;
+      font-weight: 600;
     }
 
     /* ===== Simulator Layout ===== */
@@ -535,8 +590,8 @@
 </div>
 
 <header>
-  <h1>Gravitational Lensing Simulator <span style="font-size: 0.6em; opacity: 0.7;">(beta version)</span></h1>
-  <p>Interactive forward modelling via ray tracing using PyAutoLens – explore how gravity bends light!</p>
+  <h1>Gravitational Lensing Simulator</h1>
+  <p>Interactive Einstein ring simulator using PyAutoLens ray tracing – explore how massive objects bend light through gravitational lensing effects</p>
   <nav>
     <ul>
       <li><a href="rgb-lens.html">How would you look gravitationally lensed?</a></li>
@@ -551,7 +606,7 @@
         <h3>Source Plane</h3>
         <div class="panel-subtitle">Shows background object</div>
         <div class="image-wrapper">
-          <img id="sourceImage" alt="Source plane" />
+          <img id="sourceImage" alt="Gravitational lensing source plane showing Gaussian light source before lensing effect" />
           <div id="sourceLoading" class="loading-overlay">Loading source image...</div>
         </div>
       </div>
@@ -560,7 +615,7 @@
         <h3>Image Plane</h3>
         <div class="panel-subtitle">Lensed image (what we see in the sky)</div>
         <div class="image-wrapper">
-          <img id="lensedImage" alt="Lensed output" />
+          <img id="lensedImage" alt="Gravitationally lensed image showing Einstein ring formation from ray tracing simulation" />
           <div id="lensedLoading" class="loading-overlay">Waiting for input...</div>
         </div>
       </div>
@@ -570,27 +625,27 @@
 
         <div class="control-group">
           <div class="control-label"><span>Center X (arcsec)</span> <span id="centerXValue">0.00</span></div>
-          <input type="range" id="centerX" min="-0.6" max="0.6" step="0.01" value="0">
+          <input type="range" id="centerX" min="-0.6" max="0.6" step="0.133" value="0" aria-label="Adjust gravitational lens center X position in arcseconds">
         </div>
 
         <div class="control-group">
           <div class="control-label"><span>Center Y (arcsec)</span> <span id="centerYValue">0.00</span></div>
-          <input type="range" id="centerY" min="-0.6" max="0.6" step="0.01" value="0">
+          <input type="range" id="centerY" min="-0.6" max="0.6" step="0.133" value="0" aria-label="Adjust gravitational lens center Y position in arcseconds">
         </div>
 
         <div class="control-group">
           <div class="control-label"><span>Einstein Radius</span> <span id="einsteinRadiusValue">1.00</span></div>
-          <input type="range" id="einsteinRadius" min="0.5" max="1.5" step="0.01" value="1.0">
+          <input type="range" id="einsteinRadius" min="0.5" max="1.5" step="0.111" value="1.0" aria-label="Adjust Einstein radius of the gravitational lens">
         </div>
 
         <div class="control-group">
           <div class="control-label"><span>Axis Ratio</span> <span id="axisRatioValue">0.90</span></div>
-          <input type="range" id="axisRatio" min="0.3" max="1.9" step="0.01" value="0.9">
+          <input type="range" id="axisRatio" min="0.3" max="1.9" step="0.178" value="0.9" aria-label="Adjust lens ellipticity axis ratio">
         </div>
 
         <div class="control-group">
           <div class="control-label"><span>Position Angle (deg)</span> <span id="angleValue">45</span></div>
-          <input type="range" id="angle" min="0" max="179" step="1" value="45">
+          <input type="range" id="angle" min="0" max="180" step="20" value="40" aria-label="Adjust lens position angle in degrees">
         </div>
 
         <div class="button-group">
@@ -620,26 +675,41 @@
   </section>
 
   <section id="documentation" class="documentation-section">
-    <h3>Documentation</h3>
+    <h2>How This Gravitational Lens Simulator Works</h2>
     
-    <h4>About This Simulator</h4>
+    <h3>About This Simulator</h3>
     <p>
-      This web application is a wrapper around <strong>PyAutoLens</strong>, a powerful Python package for strong gravitational lens modeling (links below). 
-      It uses ray tracing to forward lens model a simple, circular Gaussian into the image plane. Specifically, it:
+      This free gravitational lensing simulator is a web-based tool built around <strong>PyAutoLens</strong>, a powerful Python package for strong gravitational lens modeling. 
+      
+      Gravitational lensing occurs when a massive object (like a galaxy or galaxy cluster) bends the path of light from a more distant source. This creates distorted, magnified, or multiple images of the background object. Strong gravitational lensing can produce dramatic Einstein rings when the source, lens, and observer are perfectly aligned.
+
+      Perfect for students, educators, and astrophysics enthusiasts, this simulator lets you explore how massive objects like galaxies bend light from distant sources through gravitational lensing.
+    </p>
+    <p>
+      Using advanced ray tracing techniques, the simulator forward models a simple, circular Gaussian source into the image plane. Watch in real-time as you adjust parameters to create stunning Einstein rings and caustic patterns. Specifically, it:
     </p>
     <ul>
-      <li>Implements a single isothermal elliptical mass profile as the lens</li>
-      <li>Uses a simple Gaussian source as the background object</li>
-      <li>Performs ray tracing from the image plane back to the source plane</li>
-      <li>Visualizes how alignment, mass, and ellipticity affect Einstein ring formation</li>
+      <li>Implements a single isothermal elliptical mass profile as the gravitational lens</li>
+      <li>Uses a simple Gaussian light source as the background object being lensed</li>
+      <li>Performs accurate ray tracing from the image plane back to the source plane</li>
+      <li>Visualizes how lens alignment, mass distribution, and ellipticity affect Einstein ring formation and strong lensing patterns</li>
+      <li>Displays caustic lines showing critical curves in the source plane</li>
     </ul>
 
-    <h4>Limitations</h4>
+    <h3>Limitations</h3>
     <p>
+      This simulator uses PyAutoLens, the same ray tracing algorithms used in professional astrophysics research for modeling gravitational lenses. While simplified for educational purposes with a single lens and Gaussian source, the underlying physics and mathematics are accurate representations of strong gravitational lensing.
+
       This simulator is designed for only educational purposes, and because I thought it was fun. If you need to model real gravitational lens observations, please use the full PyAutoLens package directly.
     </p>
 
-    <h4>Citation</h4>
+
+    <h3>What do the different parameters control?</h3>
+    <p>
+      The Einstein Radius controls the overall lensing strength, the Center X/Y positions adjust lens alignment, the Axis Ratio determines lens ellipticity (how round vs elongated), and the Position Angle rotates the lens orientation. Adjusting these parameters lets you explore how different lens properties affect Einstein ring formation and caustic patterns.
+    </p>
+
+    <h3>Citation</h3>
     <p>
       If you use PyAutoLens or insights from this simulator in your research, please cite the appropriate papers. 
       See the <a href="https://github.com/Jammy2211/PyAutoLens#citations" target="_blank">PyAutoLens GitHub</a> for citation information.
